@@ -3,5 +3,8 @@
     "eslint:recommended",
     "plugin:react/recommended"
   ],
-  "rules": {}
+  "parser": "babel-eslint",
+  "rules": {
+    "no-unused-vars": "warn"
+  }
 }

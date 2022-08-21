@@ -1,20 +1,26 @@
-import { useState } from "react";
+import React, { useRef, useState } from "react";
 import { HubConnectionBuilder, LogLevel } from "@microsoft/signalr";
 import "./App.css";
 
 const App = () => {
   const [connection, setConnection] = useState();
   const [messages, setMessages] = useState([]);
+  const userNameInputRef = useRef(null);
+  const roomInputRef = useRef(null);
+  const messageInputRef = useRef(null);
 
-  const joinRoom = async (user, room) => {
+  const joinRoom = async () => {
+    const userName = userNameInputRef.current.value;
+    // const room = roomInputRef.current.value;
     try {
       const connection = new HubConnectionBuilder()
         .withUrl("https://localhost:7113/chat")
         .configureLogging(LogLevel.Information)
         .build();
 
-      connection.on("ReceiveMessage", (user, message) => {
-        setMessages((messages) => [...messages, { user, message }]);
+      connection.on("ReceiveMessage", (message) => {
+        console.log("Comming message: ", message);
+        // setMessages((messages) => [...messages, { ...message }]);
       });
 
       connection.onclose((e) => {
@@ -23,7 +29,7 @@ const App = () => {
       });
 
       await connection.start();
-      await connection.invoke("JoinRealtime", { user, room });
+      await connection.invoke("JoinRealtime", userName);
 
       setConnection(connection);
     } catch (e) {
@@ -33,7 +39,7 @@ const App = () => {
 
   const sendMessage = async (message) => {
     try {
-      await connection.invoke("SendMessage", message);
+      await connection.invoke("SendMessage", { content: message });
     } catch (e) {
       console.log(e);
     }
@@ -53,21 +59,24 @@ const App = () => {
       <hr className="line" />
       {!connection ? (
         <div>
-          <input type="text" placeholder="User" />
-          <input type="text" placeholder="Room" />
-          <button onClick={() => joinRoom("User", "Room")}>Join</button>
+          <input type="text" ref={userNameInputRef} placeholder="User" />
+          <input type="text" ref={roomInputRef} placeholder="Room" />
+          <button onClick={joinRoom}>Join</button>
         </div>
       ) : (
         <div>
+          {userNameInputRef.current.value} Joined
           <div>
             {messages.map((message, index) => (
-              <p>
-                {message.user} : {message.message}
+              <p key={index}>
+                {message.userId} : {message.message}
               </p>
             ))}
           </div>
-          <input type="text" placeholder="Message" />
-          <button onClick={() => sendMessage("Message")}>Send</button>
+          <input type="text" placeholder="Message" ref={messageInputRef} />
+          <button onClick={() => sendMessage(messageInputRef.current.value)}>
+            Send
+          </button>
         </div>
       )}
     </div>
