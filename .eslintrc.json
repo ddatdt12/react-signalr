@@ -3,8 +3,12 @@
     "eslint:recommended",
     "plugin:react/recommended"
   ],
+  "plugins": [
+    "prettier"
+  ],
   "parser": "babel-eslint",
   "rules": {
     "no-unused-vars": "warn"
-  }
+  },
+  "requireConfigFile": false
 }
