@@ -1,5 +1,5 @@
 import React, { useRef } from "react";
-
+import { API_URL } from "../constant";
 const LoginForm = ({ onSuccess }) => {
   const emailInputRef = useRef(null);
   const passwordInputRef = useRef(null);
@@ -8,7 +8,7 @@ const LoginForm = ({ onSuccess }) => {
     const email = emailInputRef.current.value;
     const password = passwordInputRef.current.value;
     try {
-      const res = await fetch("https://localhost:7113/api/auth/login", {
+      const res = await fetch(API_URL + "/api/auth/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
