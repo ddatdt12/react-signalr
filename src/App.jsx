@@ -55,15 +55,25 @@ const App = () => {
   const joinRealTime = useCallback(async () => {
     // const room = roomInputRef.current.value;
     if (!auth.token) {
+      if (connection) {
+        connection.stop();
+      }
       return;
     }
+    console.log("Token: ", auth.token);
     try {
       const connection = new HubConnectionBuilder()
-        .withUrl(API_URL + "/hubs/chat", {
+        .withUrl(API_URL + "/hubs/noti", {
           accessTokenFactory: () => auth.token,
         })
         .configureLogging(LogLevel.Debug)
         .build();
+      connection.on("Pong", (message) => {
+        console.log("Pong: ", message);
+      });
+      connection.on("Notification", (message) => {
+        console.log("Notification: ", message);
+      });
       connection.on("ReceiveMessage", (message) => {
         console.log("Comming message: ", message);
         setMessages((messages) => [...messages, message]);
@@ -118,14 +128,17 @@ const App = () => {
           onClick={() => {
             localStorage.removeItem("auth");
             setAuth({ user: null, token: null });
+            // connection.off();
           }}
         >
           Logout
         </button>
       </div>
       <hr className="line" />
+
       {!auth?.user && (
         <LoginForm
+          Form
           onSuccess={(auth) => {
             setAuth(auth);
             localStorage.setItem("auth", JSON.stringify(auth));
@@ -133,6 +146,15 @@ const App = () => {
         />
       )}
       {auth?.user && connection && (
+        <button
+          onClick={() => {
+            connection.invoke("Ping", "Test gửi data");
+          }}
+        >
+          Send ping
+        </button>
+      )}
+      {/* {auth?.user && connection && (
         <div>
           <input type="text" ref={receiverInputRef} placeholder="ReceiverId" />
           <div>
@@ -152,7 +174,7 @@ const App = () => {
             Send
           </button>
         </div>
-      )}
+      )} */}
     </div>
   );
 };

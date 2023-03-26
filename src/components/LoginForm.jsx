@@ -5,6 +5,7 @@ const LoginForm = ({ onSuccess }) => {
   const passwordInputRef = useRef(null);
   const handleLogin = async () => {
     //post login with fetch
+    console.log("email: ", emailInputRef.current.value);
     const email = emailInputRef.current.value;
     const password = passwordInputRef.current.value;
     try {
